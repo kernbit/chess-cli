@@ -1,0 +1,44 @@
+.PHONY: build install clean release debug test help
+
+CARGO_FLAGS = --release
+TARGET_DIR = target/release
+BINARY_NAME = chess-cli
+PREFIX ?= /usr/local
+BINDIR = $(PREFIX)/bin
+DOCDIR = $(PREFIX)/share/doc/$(BINARY_NAME)
+
+build:
+	cargo build $(CARGO_FLAGS)
+
+debug:
+	cargo build
+
+install: build
+	install -Dm755 $(TARGET_DIR)/$(BINARY_NAME) $(DESTDIR)$(BINDIR)/$(BINARY_NAME)
+	install -Dm644 README.md $(DESTDIR)$(DOCDIR)/README.md
+
+clean:
+	cargo clean
+
+test:
+	cargo test
+
+release: clean build
+	strip $(TARGET_DIR)/$(BINARY_NAME)
+
+aur-package: release
+	makepkg -f
+
+aur-install: aur-package
+	sudo pacman -U *.pkg.tar.xz
+
+help:
+	@echo "Available targets:"
+	@echo "  build       - Build in release mode"
+	@echo "  debug       - Build in debug mode" 
+	@echo "  install     - Install binary and docs"
+	@echo "  clean       - Clean build artifacts"
+	@echo "  test        - Run tests"
+	@echo "  release     - Clean build and strip"
+	@echo "  aur-package - Create AUR package"
+	@echo "  aur-install - Install via AUR"
