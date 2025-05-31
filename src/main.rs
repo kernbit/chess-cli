@@ -162,9 +162,10 @@ fn print_help() {
 }
 
 fn parse_algebraic_notation(notation: &str, board: &Board) -> Result<Move> {
-    let notation = notation.trim();
+    let notation = notation.trim().to_lowercase();
     
-    if notation == "O-O" || notation == "0-0" {
+    // Castling kontrolü
+    if notation == "o-o" || notation == "0-0" {
         let from = if board.current_player() == Player::White { 
             Position::from_algebraic("e1")? 
         } else { 
@@ -178,7 +179,7 @@ fn parse_algebraic_notation(notation: &str, board: &Board) -> Result<Move> {
         return Ok(Move::new(from, to, None));
     }
     
-    if notation == "O-O-O" || notation == "0-0-0" {
+    if notation == "o-o-o" || notation == "0-0-0" {
         let from = if board.current_player() == Player::White { 
             Position::from_algebraic("e1")? 
         } else { 
@@ -192,16 +193,27 @@ fn parse_algebraic_notation(notation: &str, board: &Board) -> Result<Move> {
         return Ok(Move::new(from, to, None));
     }
     
-    if notation.len() >= 2 {
-        let to_pos = Position::from_algebraic(&notation[notation.len()-2..])?;
+    // Basit hamle parsing (e4, d5 gibi)
+    if notation.len() == 2 {
+        let to_pos = Position::from_algebraic(&notation)?;
         
-        let legal_moves = board.get_legal_moves();
-        for chess_move in legal_moves {
-            if chess_move.to() == to_pos {
-                return Ok(chess_move);
-            }
-        }
+        // Piyon hamlesi olarak varsay
+        let from_rank = if board.current_player() == Player::White {
+            if to_pos.rank == 3 { 1 } else { to_pos.rank - 1 }
+        } else {
+            if to_pos.rank == 4 { 6 } else { to_pos.rank + 1 }
+        };
+        
+        let from_pos = Position::new(to_pos.file, from_rank)?;
+        return Ok(Move::new(from_pos, to_pos, None));
     }
     
-    Err(anyhow!("Could not parse move: {}", notation))
+    // 4 karakterli hamle (e2e4 gibi)
+    if notation.len() == 4 {
+        let from_pos = Position::from_algebraic(&notation[0..2])?;
+        let to_pos = Position::from_algebraic(&notation[2..4])?;
+        return Ok(Move::new(from_pos, to_pos, None));
+    }
+    
+    Err(anyhow!("Could not parse move: '{}'. Try format like 'e4' or 'e2e4'", notation))
 }
