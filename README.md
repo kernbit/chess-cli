@@ -247,7 +247,7 @@ cargo clippy
 
 ## 📝 License
 
-MIT License - see [LICENSE](LICENSE) file.
+GNU  License - see [LICENSE](LICENSE) file.
 
 ## 🤝 Contributing
 
