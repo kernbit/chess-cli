@@ -164,7 +164,7 @@ fn print_help() {
 fn parse_algebraic_notation(notation: &str, board: &Board) -> Result<Move> {
     let notation = notation.trim().to_lowercase();
     
-    // Castling kontrolü
+    
     if notation == "o-o" || notation == "0-0" {
         let from = if board.current_player() == Player::White { 
             Position::from_algebraic("e1")? 
@@ -193,7 +193,7 @@ fn parse_algebraic_notation(notation: &str, board: &Board) -> Result<Move> {
         return Ok(Move::new(from, to, None));
     }
     
-    // Basit hamle parsing (e4, d5 gibi)
+    
     if notation.len() == 2 {
         let to_pos = Position::from_algebraic(&notation)?;
         
@@ -208,7 +208,7 @@ fn parse_algebraic_notation(notation: &str, board: &Board) -> Result<Move> {
         return Ok(Move::new(from_pos, to_pos, None));
     }
     
-    // 4 karakterli hamle (e2e4 gibi)
+    
     if notation.len() == 4 {
         let from_pos = Position::from_algebraic(&notation[0..2])?;
         let to_pos = Position::from_algebraic(&notation[2..4])?;
